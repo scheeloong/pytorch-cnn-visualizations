@@ -15,25 +15,28 @@ from misc_functions import preprocess_image, recreate_image, save_image
 
 class CNNLayerVisualization():
     """
-        Produces an image that minimizes the loss of a convolution
-        operation for a specific layer and filter
+    Produces an image that minimizes the loss of a convolution
+    operation for a specific layer and filter
     """
     def __init__(self, model, selected_layer, selected_filter):
         self.model = model
         self.model.eval()
         self.selected_layer = selected_layer
         self.selected_filter = selected_filter
+
         self.conv_output = 0
         # Create the folder to export images if not exists
         if not os.path.exists('../generated'):
             os.makedirs('../generated')
 
     def hook_layer(self):
-        def hook_function(module, grad_in, grad_out):
+        # For forward, should be hook_function(module, input, output)
+        # Input is the input to current layer, output is the output to current layer
+        def hook_function(module, grad_in, grad_out): 
             # Gets the conv output of the selected filter (from selected layer)
-            self.conv_output = grad_out[0, self.selected_filter]
-        # Hook the selected layer
-        self.model[self.selected_layer].register_forward_hook(hook_function)
+            self.conv_output = grad_out[0, self.selected_filter] # Get the outgoing output to a given neuron
+        # Hook the selected layer during forward pass
+        self.model[self.selected_layer].register_forward_hook(hook_function) # 
 
     def visualise_layer_with_hooks(self):
         # Hook the selected layer

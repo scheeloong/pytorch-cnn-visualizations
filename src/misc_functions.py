@@ -13,7 +13,6 @@ import torch
 from torch.autograd import Variable
 from torchvision import models
 
-
 def convert_to_grayscale(im_as_arr):
     """
         Converts 3d image to grayscale
@@ -31,7 +30,6 @@ def convert_to_grayscale(im_as_arr):
     grayscale_im = np.expand_dims(grayscale_im, axis=0)
     return grayscale_im
 
-
 def save_gradient_images(gradient, file_name):
     """
         Exports the original gradient image
@@ -42,13 +40,12 @@ def save_gradient_images(gradient, file_name):
     """
     if not os.path.exists('../results'):
         os.makedirs('../results')
-    # Normalize
+    # Normalize 0 mean, and variance 1
     gradient = gradient - gradient.min()
     gradient /= gradient.max()
     # Save image
     path_to_file = os.path.join('../results', file_name + '.jpg')
     save_image(gradient, path_to_file)
-
 
 def save_class_activation_images(org_img, activation_map, file_name):
     """
@@ -73,7 +70,6 @@ def save_class_activation_images(org_img, activation_map, file_name):
     path_to_file = os.path.join('../results', file_name+'_Cam_Grayscale.png')
     save_image(activation_map, path_to_file)
 
-
 def apply_colormap_on_image(org_im, activation, colormap_name):
     """
         Apply heatmap on image
@@ -97,7 +93,6 @@ def apply_colormap_on_image(org_im, activation, colormap_name):
     heatmap_on_image = Image.alpha_composite(heatmap_on_image, heatmap)
     return no_trans_heatmap, heatmap_on_image
 
-
 def save_image(im, path):
     """
         Saves a numpy matrix of shape D(1 or 3) x W x H as an image
@@ -119,11 +114,9 @@ def save_image(im, path):
         im = Image.fromarray(im.astype(np.uint8))
     im.save(path)
 
-
 def preprocess_image(pil_im, resize_im=True):
     """
         Processes image for CNNs
-
     Args:
         PIL_img (PIL_img): Image to process
         resize_im (bool): Resize to 224 or not
@@ -151,7 +144,6 @@ def preprocess_image(pil_im, resize_im=True):
     im_as_var = Variable(im_as_ten, requires_grad=True)
     return im_as_var
 
-
 def recreate_image(im_as_var):
     """
         Recreates images from a torch variable, sort of reverse preprocessing
@@ -169,7 +161,6 @@ def recreate_image(im_as_var):
     recreated_im[recreated_im > 1] = 1
     recreated_im[recreated_im < 0] = 0
     recreated_im = np.round(recreated_im * 255)
-
     recreated_im = np.uint8(recreated_im).transpose(1, 2, 0)
     return recreated_im
 
@@ -187,10 +178,9 @@ def get_positive_negative_saliency(gradient):
     neg_saliency = (np.maximum(0, -gradient) / -gradient.min())
     return pos_saliency, neg_saliency
 
-
 def get_example_params(example_index):
     """
-        Gets used variables for almost all visualizations, like the image, model etc.
+    Gets used variables for almost all visualizations, like the image, model etc.
 
     Args:
         example_index (int): Image id to use from examples
@@ -206,17 +196,19 @@ def get_example_params(example_index):
     example_list = (('../input_images/snake.jpg', 56),
                     ('../input_images/cat_dog.png', 243),
                     ('../input_images/spider.png', 72))
-    img_path = example_list[example_index][0]
-    target_class = example_list[example_index][1]
-    file_name_to_export = img_path[img_path.rfind('/')+1:img_path.rfind('.')]
-    # Read image
+    img_path = example_list[example_index][0] # The path to the input image
+    target_class = example_list[example_index][1] # Target class for pre-trained model
+    # Get the filename of the input image
+    file_name_to_export = img_path[img_path.rfind('/') + 1 : img_path.rfind('.')]
+    # Read image as RGB
     original_image = Image.open(img_path).convert('RGB')
-    # Process image
-    prep_img = preprocess_image(original_image)
-    # Define model
+    # Process image for CNN (resize to 224 if needed)
+    prep_img = preprocess_image(original_image) # Refer to helper method in this file. 
+    # Define model for pretraining
     pretrained_model = models.alexnet(pretrained=True)
-    return (original_image,
-            prep_img,
-            target_class,
-            file_name_to_export,
-            pretrained_model)
+    # Returns
+    return (original_image, # Original opened image
+            prep_img, # Preprocessed image
+            target_class, # Class of the image
+            file_name_to_export, # File name of input image
+            pretrained_model) # Model loaded for pre-training
