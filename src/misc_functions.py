@@ -139,7 +139,7 @@ def preprocess_image(pil_im, resize_im=True):
     # Convert to float tensor
     im_as_ten = torch.from_numpy(im_as_arr).float()
     # Add one more channel to the beginning. Tensor shape = 1,3,224,224
-    im_as_ten.unsqueeze_(0)
+    im_as_ten.unsqueeze_(0) # Image as tensor
     # Convert to Pytorch variable
     im_as_var = Variable(im_as_ten, requires_grad=True)
     return im_as_var
@@ -160,8 +160,8 @@ def recreate_image(im_as_var):
         recreated_im[c] -= reverse_mean[c]
     recreated_im[recreated_im > 1] = 1
     recreated_im[recreated_im < 0] = 0
-    recreated_im = np.round(recreated_im * 255)
-    recreated_im = np.uint8(recreated_im).transpose(1, 2, 0)
+    recreated_im = np.round(recreated_im * 255) # 255 pixels
+    recreated_im = np.uint8(recreated_im).transpose(1, 2, 0) # Change the positions of everything
     return recreated_im
 
 

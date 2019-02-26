@@ -22,15 +22,25 @@ class VanillaBackprop():
     def hook_layers(self):
         def hook_function(module, grad_in, grad_out):
             # Set the gradients during the backward pass
-            # As the gradients coming into the current layer
-            self.gradients = grad_in[0]  # get the incoming gradients to the first layer
-
+            # As the gradients going out of current layer into previous input
+            # of size (3, 224, 224)
+            self.gradients = grad_in[0] # 
+            print("self.gradients.size()", self.gradients.size())
+            '''
+            print("len(grad_in):", len(grad_in)) # Grad_in is a size 3 tuple
+            print("grad_in[0].size()", grad_in[0].size())
+            print("grad_in[1].size()", grad_in[1].size())
+            print("grad_in[2].size()", grad_in[2].size())
+            print("len(grad_out):", len(grad_out)) #
+            print("grad_out[0].size():", grad_out[0].size())
+            # '''
         # PyTorch allows you to hook functions that are executed per layer
         # either during the forward pass or the backward pass.
 
         # Get the first layer
         # First layer is known to be closest to input image
         first_layer = list(self.model.features._modules.items())[0][1]
+        print("First_layer: ", first_layer)
 
         '''
         print("self.model", self.model)
@@ -41,8 +51,7 @@ class VanillaBackprop():
         print("list(self.model.features_modulesl.items())[0][1]", list(self.model.features._modules.items())[0][1])
         import sys
         sys.exit(0)
-        '''
-
+        # '''
 
         # TODO: How come incoming gradient is nicely the size of image? 
         # NO, it's size of first layer, which assumes input is 224, 224 ??  
@@ -57,7 +66,10 @@ class VanillaBackprop():
     def generate_gradients(self, input_image, target_class):
         # Forward pass the model from the input
         model_output = self.model(input_image)
+
         # Zero gradients everywhere
+        # as the model doesn't zero the gradients by default
+        # because (optimizer.step() needs the gradients, RNN backprop on shared parameters are cumulative)
         self.model.zero_grad()
 
         # Target for backprop
