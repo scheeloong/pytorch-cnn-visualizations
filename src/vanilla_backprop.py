@@ -64,7 +64,8 @@ class VanillaBackprop():
         first_layer.register_backward_hook(hook_function)
 
     def generate_gradients(self, input_image, target_class):
-        # Forward pass the model from the input
+        # Forward pass the model from current input's image
+        # To get the activations at every layer
         model_output = self.model(input_image)
 
         # Zero gradients everywhere
@@ -72,7 +73,6 @@ class VanillaBackprop():
         # because (optimizer.step() needs the gradients, RNN backprop on shared parameters are cumulative)
         self.model.zero_grad()
 
-        # Target for backprop
         # Set the output to 1 at the target class, and 0 everywhere else. 
         one_hot_output = torch.FloatTensor(1, model_output.size()[-1]).zero_() # Generate correct shape but all zeroes
         one_hot_output[0][target_class] = 1 # Set the target class to 1

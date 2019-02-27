@@ -174,8 +174,10 @@ def get_positive_negative_saliency(gradient):
     returns:
         pos_saliency ( )
     """
-    pos_saliency = (np.maximum(0, gradient) / gradient.max())
-    neg_saliency = (np.maximum(0, -gradient) / -gradient.min())
+    # Get only the gradients > 0
+    pos_saliency = (np.maximum(0, gradient) / gradient.max()) # Values from 0 to 1
+    # Get only the gradients < 0
+    neg_saliency = (np.maximum(0, -gradient) / -gradient.min()) # Values from 0 to 1
     return pos_saliency, neg_saliency
 
 def get_example_params(example_index):
