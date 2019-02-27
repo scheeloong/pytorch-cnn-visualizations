@@ -108,13 +108,14 @@ class CNNLayerVisualization():
             optimizer.step() # Update the parameters using the generated gradients
 
             # Save image
-            if i % 5 == 0:
+            if (i % 5 == 0) or (i == 1):
                 # Recreate image into a PIL tensor
                 self.created_image = recreate_image(processed_image)
                 im_path = '../generated/layer_vis_l' + str(self.selected_layer) + \
                     '_f' + str(self.selected_filter) + '_iter' + str(i) + '.jpg'
                 save_image(self.created_image, im_path)
 
+    '''
     def visualise_layer_without_hooks(self):
         # Process image and return variable
         # Generate a random image
@@ -152,10 +153,12 @@ class CNNLayerVisualization():
             # Recreate image
             self.created_image = recreate_image(processed_image)
             # Save image
-            if i % 5 == 0:
+
+            if (i % 5 == 0) or (i == 1):
                 im_path = '../generated/layer_vis_l' + str(self.selected_layer) + \
                     '_f' + str(self.selected_filter) + '_iter' + str(i) + '.jpg'
                 save_image(self.created_image, im_path)
+    # '''
 
 
 if __name__ == '__main__':
